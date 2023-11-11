@@ -2,7 +2,8 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { sql } from "@vercel/postgres";
 
 import { Hodor, type Words } from "../../Stark/hodor.js";
-import { Baggage, GuestRecord } from "../../Stark/book.js";
+import { GuestRecord } from "../../Stark/book.js";
+import { Meera } from "../../Stark/meera.js";
 import { kv } from "@vercel/kv";
 
 class HoldTheDoor extends Hodor {
@@ -11,12 +12,11 @@ class HoldTheDoor extends Hodor {
   }
 
   async have_meet(): Promise<string[]> {
-    let res = await sql`SELECT json_agg(id) 
-                        FROM gate 
-                        WHERE username = ${this.name}
-                              AND enabled = TRUE
-                              AND origin = ${this.origin}`;
-    return res.rows[0].json_agg;
+    let res = await sql.query(
+      `SELECT json_agg(id) as id FROM gate WHERE username=$1 AND origin=$2 AND enabled=TRUE`,
+      [this.name, this.origin]
+    );
+    return res.rows[0].id;
   }
 
   async book(words: Words): Promise<void> {
@@ -36,10 +36,10 @@ class HoldTheDoor extends Hodor {
   }
 
   async getGuestRecord(id: string): Promise<GuestRecord> {
-    let query = await sql`SELECT * FROM gate
-                          WHERE id = ${id}
-                                AND username = ${this.name}
-                                AND origin = ${this.origin}
+    let query = await sql`SELECT * FROM gate NATURAL FULL JOIN stable
+                          WHERE gate.id = ${id}
+                                AND gate.username = ${this.name}
+                                AND gate.origin = ${this.origin}
                           LIMIT 1`;
     if (query.rowCount == 0) {
       throw Error("Credential ID not found");
@@ -49,17 +49,8 @@ class HoldTheDoor extends Hodor {
       id: id,
       publicKey: query.rows[0].publickey,
       origin: this.origin,
+      baggage: query.rows[0].baggage,
     };
-  }
-
-  async fetchBaggage(): Promise<Baggage> {
-    let query = await sql`SELECT baggage FROM guest
-                          WHERE username = ${this.name} AND origin = ${this.origin}
-                          LIMIT 1`;
-    if (query.rowCount == 0) {
-      return null;
-    }
-    return query.rows[0].baggage;
   }
 }
 
@@ -73,10 +64,13 @@ export default async function (
       response.status(404).send(null);
       return;
     }
+    let url = new URL(request.headers.referer ?? request.headers.origin ?? "");
+    let rpID = url.hostname;
+    let origin = url.origin;
     let hodor = new HoldTheDoor(
       process.env.RP_NAME!,
-      request.headers.host!,
-      request.headers.host!,
+      rpID,
+      origin,
       request.query.name as string
     );
     let answer: any;
@@ -86,7 +80,7 @@ export default async function (
         response.status(200).json(answer);
         break;
       case "POST":
-        answer = await hodor.offer(JSON.parse(request.body));
+        answer = await hodor.offer(request.body);
         response.status(200).json({
           name: hodor.name,
           baggage: answer,

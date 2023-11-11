@@ -24,6 +24,7 @@ class LordBrandon extends Brandon {
     await kv.set(key, challenge);
     await kv.expire(key, 60);
   }
+
   async check(): Promise<string> {
     let key = `gate/challenge/${this.name}`;
     let challenge = (await kv.get(key)) as string;
@@ -38,11 +39,12 @@ class LordBrandon extends Brandon {
                    ${record.publicKey},
                    ${record.origin},
                    TRUE)`;
-    await sql.query(`INSERT INTO guest(username, baggage, origin) VALUES($1, $2)`, [
-      record.user,
-      baggage,
-      this.origin,
-    ]);
+    if (baggage) {
+      await sql.query(
+        `INSERT INTO stable(username, baggage, origin) VALUES($1, $2, $3)`,
+        [record.user, baggage, this.origin]
+      );
+    }
   }
 }
 
@@ -56,10 +58,13 @@ export default async function bran(
       response.status(404).send(null);
       return;
     }
+    let url = new URL(request.headers.referer ?? request.headers.origin ?? "");
+    let rpID = url.hostname;
+    let origin = url.origin;
     let bran = new LordBrandon(
       process.env.RP_NAME!,
-      request.headers.host!,
-      request.headers.host!,
+      rpID,
+      origin,
       request.query.name as string
     );
     let answer: any;
@@ -69,7 +74,7 @@ export default async function bran(
         response.status(200).json(answer);
         break;
       case "POST":
-        answer = await bran.greet(JSON.parse(request.body));
+        answer = await bran.greet(request.body);
         response.status(200).send(answer);
         break;
       default:

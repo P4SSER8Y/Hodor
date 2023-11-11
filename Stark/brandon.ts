@@ -5,8 +5,7 @@ import {
 import { Baggage, GuestRecord } from "./book.js";
 
 type Invitation = object;
-type GreetingPresent = {
-  response: any;
+type GreetingPresent = any & {
   baggage?: Baggage;
 };
 type Words = string;
@@ -64,16 +63,14 @@ export class Brandon implements Lord, Secretary {
       },
     });
 
-    let challenge = options.challenge;
-    this.book(challenge);
+    await this.book(options.challenge);
     return options;
   }
 
   async greet(present: GreetingPresent): Promise<string | null> {
     let challenge = await this.check();
-
     let verification = await verifyRegistrationResponse({
-      response: present.response,
+      response: present,
       expectedChallenge: challenge,
       expectedOrigin: this.origin,
       expectedRPID: this.rpID,

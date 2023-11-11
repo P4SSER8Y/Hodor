@@ -2,7 +2,8 @@ import {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
-import { Baggage, GuestRecord } from "./book.js";
+import { GuestRecord, Baggage } from "./book.js";
+import { Meera } from "./meera.js";
 
 type Answer = object;
 type Paper = object & { id: string };
@@ -18,7 +19,6 @@ interface Kid {
   book(words: Words): Promise<void>;
   check(): Promise<Words>;
   getGuestRecord(id: string): Promise<GuestRecord>;
-  fetchBaggage(): Promise<Baggage>;
 }
 
 export class Hodor implements Stableboy, Kid {
@@ -47,10 +47,6 @@ export class Hodor implements Stableboy, Kid {
   }
 
   getGuestRecord(id: string): Promise<GuestRecord> {
-    throw new Error("Method not implemented.");
-  }
-
-  fetchBaggage(): Promise<Baggage> {
     throw new Error("Method not implemented.");
   }
 
@@ -97,11 +93,6 @@ export class Hodor implements Stableboy, Kid {
       requireUserVerification: false,
     });
 
-    let baggage = await this.fetchBaggage();
-
-    return {
-      token: "",
-      baggage: baggage,
-    };
+    return Meera(guest.baggage ?? null);
   }
 }

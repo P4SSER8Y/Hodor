@@ -1,18 +1,30 @@
 {
   "name": "hodor",
+  "private": true,
   "version": "1.0.0",
-  "description": "hold the door",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
   "author": "P4SSER8Y",
   "license": "MIT",
   "dependencies": {
+    "@simplewebauthn/browser": "^8.3.4",
     "@simplewebauthn/server": "^8.3.5",
     "@types/node": "^20.9.0",
     "@vercel/kv": "^1.0.0",
     "@vercel/node": "^3.0.9",
-    "@vercel/postgres": "^0.5.1"
+    "@vercel/postgres": "^0.5.1",
+    "jsonwebtoken": "^9.0.2",
+    "vue": "^3.3"
   },
-  "scripts": {
-    "build": "mkdir -p dist"
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.5",
+    "@vitejs/plugin-vue": "^4",
+    "typescript": "^5",
+    "vite": "^4",
+    "vue-tsc": "^1"
   },
   "type": "module"
 }
