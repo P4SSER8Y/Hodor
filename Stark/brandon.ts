@@ -2,27 +2,14 @@ import {
   generateRegistrationOptions,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
+import { Baggage, GuestRecord } from "./book.js";
 
 type Invitation = object;
-export type Baggage = object | undefined;
 type GreetingPresent = {
-  response: {
-    id: any;
-    rawId: any;
-    response: any;
-    clientExtensionResults: any;
-    type: any;
-  };
-  baggage: Baggage;
+  response: any;
+  baggage?: Baggage;
 };
 type Words = string;
-export type GuestRecord = {
-  user: string;
-  id: string;
-  publicKey: string;
-  origin: string;
-};
-
 interface Lord {
   name: string;
   visit(): Promise<Invitation | null>;
@@ -37,17 +24,16 @@ interface Secretary {
 }
 
 export class Brandon implements Lord, Secretary {
-  protected rpName: string;
-  protected rpID: string;
-  protected origin: string;
-  name: string;
+  readonly rpName: string;
+  readonly rpID: string;
+  readonly origin: string;
+  readonly name: string;
 
   constructor(rpName: string, rpID: string, origin: string, name: string) {
     this.rpName = rpName;
     this.rpID = rpID;
     this.origin = origin;
     this.name = name;
-    console.log(`${rpName} ${rpID} ${origin} ${name}`)
   }
 
   async is_waiting(): Promise<boolean> {
@@ -85,7 +71,6 @@ export class Brandon implements Lord, Secretary {
 
   async greet(present: GreetingPresent): Promise<string | null> {
     let challenge = await this.check();
-    console.log(challenge);
 
     let verification = await verifyRegistrationResponse({
       response: present.response,
@@ -112,7 +97,7 @@ export class Brandon implements Lord, Secretary {
         publicKey: publickey,
         origin: this.origin,
       },
-      present.baggage
+      present.baggage ?? null
     );
 
     return "Winter is comming";

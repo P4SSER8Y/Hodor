@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { Baggage, Brandon, GuestRecord } from "../../Stark/brandon.js";
+import { Baggage, GuestRecord } from "../../Stark/book.js";
+import { Brandon } from "../../Stark/brandon.js";
 import { kv } from "@vercel/kv";
 import { sql } from "@vercel/postgres";
 
@@ -37,9 +38,10 @@ class LordBrandon extends Brandon {
                    ${record.publicKey},
                    ${record.origin},
                    TRUE)`;
-    await sql.query(`INSERT INTO guest(username, baggage) VALUES($1, $2)`, [
+    await sql.query(`INSERT INTO guest(username, baggage, origin) VALUES($1, $2)`, [
       record.user,
       baggage,
+      this.origin,
     ]);
   }
 }
