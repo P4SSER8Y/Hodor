@@ -46,6 +46,14 @@ class LordBrandon extends Brandon {
       );
     }
   }
+
+  async get_previous_id(): Promise<string[]> {
+    console.log(this.name);
+    console.log(this.origin);
+    let query =
+      await sql.query(`SELECT id FROM gate WHERE username=$1 AND origin=$2`, [this.name, this.origin]);
+    return query.rows.map((x) => x.id as string);
+  }
 }
 
 export default async function bran(

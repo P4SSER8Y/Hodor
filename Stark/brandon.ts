@@ -20,6 +20,7 @@ interface Secretary {
   book(challenge: Words): Promise<void>;
   check(): Promise<Words>;
   register(record: GuestRecord, baggage: Baggage): Promise<void>;
+  get_previous_id(): Promise<string[]>;
 }
 
 export class Brandon implements Lord, Secretary {
@@ -47,17 +48,27 @@ export class Brandon implements Lord, Secretary {
   async register(record: GuestRecord, baggage: Baggage): Promise<void> {
     throw new Error("Method not implemented.");
   }
+  get_previous_id(): Promise<string[]> {
+    throw new Error("Method not implemented.");
+  }
 
   async visit(): Promise<Invitation | null> {
     if (!(await this.is_waiting())) {
       console.log(`invalid user=${this.name}`);
       return null;
     }
+    const id = await this.get_previous_id();
     const options = await generateRegistrationOptions({
       rpName: this.rpName,
       rpID: this.rpID,
       userID: this.name,
       userName: this.name,
+      excludeCredentials: id
+        .map((x) => Buffer.from(x, "base64url"))
+        .map((x) => ({
+          id: x,
+          type: "public-key",
+        })),
       authenticatorSelection: {
         userVerification: "discouraged",
       },
