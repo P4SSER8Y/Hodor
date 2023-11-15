@@ -6,7 +6,7 @@ export async function Meera(baggage: Baggage): Promise<Baggage> {
     return null;
   }
 
-  switch (baggage.type) {
+  switch (baggage.token) {
     case "asymmetry":
       baggage.token = jwt.sign(
         {id: baggage.id},

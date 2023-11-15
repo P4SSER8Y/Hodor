@@ -20,7 +20,6 @@ class LordBrandon extends Brandon {
 
   async book(challenge: string): Promise<void> {
     let key = `gate/challenge/${this.name}`;
-    console.log(`remember ${challenge} for ${this.name}`);
     await kv.set(key, challenge);
     await kv.expire(key, 60);
   }
@@ -48,8 +47,6 @@ class LordBrandon extends Brandon {
   }
 
   async get_previous_id(): Promise<string[]> {
-    console.log(this.name);
-    console.log(this.origin);
     let query =
       await sql.query(`SELECT id FROM gate WHERE username=$1 AND origin=$2`, [this.name, this.origin]);
     return query.rows.map((x) => x.id as string);
