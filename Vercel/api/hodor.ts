@@ -1,9 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { sql } from "@vercel/postgres";
 
-import { Hodor, type Words } from "../../Stark/hodor.js";
+import { Hodor, Words } from "../../Stark/hodor.js";
 import { GuestRecord } from "../../Stark/book.js";
-import { Meera } from "../../Stark/meera.js";
 import { kv } from "@vercel/kv";
 
 class HoldTheDoor extends Hodor {
