@@ -2,7 +2,9 @@
 import { ref } from 'vue';
 import { startAuthentication } from '@simplewebauthn/browser';
 import { useLocalStorage } from '@vueuse/core'
+import { useUrlSearchParams } from '@vueuse/core';
 
+const searchParams = useUrlSearchParams('hash');
 const name = useLocalStorage('name', "");
 const token = ref("");
 
@@ -24,6 +26,13 @@ async function auth() {
     })
     const result = await verificationResp.json();
     token.value = result?.baggage?.token ?? "";
+
+    if (searchParams.callback?.length > 0) {
+        let url = new URL(decodeURIComponent(searchParams.callback as string));
+        url.searchParams.set('token', token.value);
+        console.log(url);
+        window.location.replace(url.href);
+    }
 }
 </script>
 
