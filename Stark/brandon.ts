@@ -72,6 +72,7 @@ export class Brandon implements Lord, Secretary {
       authenticatorSelection: {
         userVerification: "discouraged",
       },
+      timeout: 60000,
     });
 
     await this.book(options.challenge);

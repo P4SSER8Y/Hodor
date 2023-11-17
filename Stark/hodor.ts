@@ -63,6 +63,7 @@ export class Hodor implements Stableboy, Kid {
         type: "public-key",
       })),
       userVerification: "discouraged",
+      timeout: 60000,
     });
 
     await this.book(options.challenge);

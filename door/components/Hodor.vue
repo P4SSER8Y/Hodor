@@ -3,10 +3,15 @@ import { ref } from 'vue';
 import { startAuthentication } from '@simplewebauthn/browser';
 import { useLocalStorage } from '@vueuse/core'
 import { useUrlSearchParams } from '@vueuse/core';
+import { info_t, LEVEL } from './log';
+import { h } from './utils';
 
 const searchParams = useUrlSearchParams('hash');
 const name = useLocalStorage('name', "");
 const token = ref("");
+const emit = defineEmits<{
+    (event: 'msg', msg: info_t): void
+}>();
 
 let url_prefix = "";
 if (process.env.VERCEL) {
@@ -15,17 +20,44 @@ if (process.env.VERCEL) {
 
 async function auth() {
     let url = `${url_prefix}name=${name.value}`;
-    const resp = await fetch(url);
-    const asseResp = await startAuthentication(await resp.json());
-    const verificationResp = await fetch(url, {
+    emit("msg", { level: LEVEL.INFO, msg: 'fetch challenge', timeout: -1 });
+    const resp = await h(fetch(url));
+    if (resp.err || !resp.v?.ok) {
+        emit("msg", { level: LEVEL.ERROR, msg: "fetch challenge failed", timeout: 3000 });
+        return;
+    }
+    const respJson = await h(resp.v.json());
+    if (respJson.err) {
+        emit("msg", { level: LEVEL.ERROR, msg: "fetch challenge failed", timeout: 3000 });
+        return;
+    }
+    emit("msg", { level: LEVEL.WARNING, msg: 'confirm?', timeout: respJson.v?.timeout ?? -1 });
+    const asseResp = await h(startAuthentication(respJson.v));
+    if (asseResp.err) {
+        emit("msg", { level: LEVEL.ERROR, msg: `authenticate failed: ${asseResp.err.message}`, timeout: 3000 });
+        return;
+    }
+    emit("msg", { level: LEVEL.INFO, msg: 'wait for verify', timeout: -1 });
+    const verificationResp = await h(fetch(url, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(asseResp),
-    })
-    const result = await verificationResp.json();
-    token.value = result?.baggage?.token ?? "";
+        body: JSON.stringify(asseResp.v),
+    }));
+    if (verificationResp.err || !verificationResp.v?.ok)
+    {
+        emit("msg", { level: LEVEL.ERROR, msg: `verification failed: ${verificationResp.err?.message}`, timeout: 3000 });
+        return;
+    }
+    const result = await h(verificationResp.v.json());
+    if (result.err)
+    {
+        emit("msg", { level: LEVEL.ERROR, msg: `verification failed: ${result.err.message}`, timeout: 3000 });
+        return;
+    }
+    token.value = result.v.baggage?.token ?? "";
+    emit("msg", { level: LEVEL.SUCCESS, msg: `get token`, timeout: 5000 });
 
     if (searchParams.callback?.length > 0) {
         let url = new URL(decodeURIComponent(searchParams.callback as string));
