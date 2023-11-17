@@ -58,6 +58,6 @@ async function register() {
     <div class="grid grid-cols-1 my-2 gap-1">
         <input class="input input-bordered input-info input-lg" placeholder="name" v-model="name" />
         <textarea class="textarea textarea-bordered" placeholder="baggage" v-model="baggage"></textarea>
-        <button class="btn btn-outline btn-warning btn-sm" @click="register"></button>
+        <button class="btn btn-warning btn-sm" @click="register"></button>
     </div>
 </template>

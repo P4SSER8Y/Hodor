@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { startAuthentication } from '@simplewebauthn/browser';
 import { useLocalStorage } from '@vueuse/core'
 import { useUrlSearchParams } from '@vueuse/core';
 import { info_t, LEVEL } from './log';
 import { h } from './utils';
+import { base64URLStringToBuffer } from '@simplewebauthn/browser';
 
 const searchParams = useUrlSearchParams('hash');
 const name = useLocalStorage('name', "");
@@ -13,9 +14,19 @@ const emit = defineEmits<{
     (event: 'msg', msg: info_t): void
 }>();
 
+const tokenGroup = computed(() => token.value.trim().split('.'));
+const tokenValid = computed(() => tokenGroup.value.length == 3);
+const header = computed(() => tokenValid ? JSON.stringify(JSON.parse(base64URLDecode(tokenGroup.value[0])), null, 2) : null);
+const payload = computed(() => tokenValid ? JSON.stringify(JSON.parse(base64URLDecode(tokenGroup.value[1])), null, 2) : null);
+const signature = computed(() => tokenValid ? tokenGroup.value[2] : null);
+
 let url_prefix = "";
 if (process.env.VERCEL) {
     url_prefix = "/api/hodor/?";
+}
+
+function base64URLDecode(base64URLString: string) {
+    return new TextDecoder().decode(base64URLStringToBuffer(base64URLString));
 }
 
 async function auth() {
@@ -45,14 +56,12 @@ async function auth() {
         },
         body: JSON.stringify(asseResp.v),
     }));
-    if (verificationResp.err || !verificationResp.v?.ok)
-    {
+    if (verificationResp.err || !verificationResp.v?.ok) {
         emit("msg", { level: LEVEL.ERROR, msg: `verification failed: ${verificationResp.err?.message}`, timeout: 3000 });
         return;
     }
     const result = await h(verificationResp.v.json());
-    if (result.err)
-    {
+    if (result.err) {
         emit("msg", { level: LEVEL.ERROR, msg: `verification failed: ${result.err.message}`, timeout: 3000 });
         return;
     }
@@ -71,9 +80,17 @@ async function auth() {
 <template>
     <div class="grid grid-cols-1 my-2 gap-1">
         <input class="input input-bordered input-info input-lg" placeholder="name" v-model="name" />
-        <button class="btn btn-outline btn-secondary btn-sm" @click="auth"></button>
-        <div v-if="token.length > 0" class="break-all">
-            {{ token }}
+        <button class="btn btn-secondary btn-sm" @click="auth"></button>
+        <div v-if="tokenValid" class="textarea textarea-bordered textarea-xs">
+            <p class="text-xs break-all font-mono whitespace-pre">
+                {{ header }}
+            </p>
+            <p class="text-xs break-all font-mono whitespace-pre">
+                {{ payload }}
+            </p>
+            <p class="text-xs font-mono text-ellipsis overflow-hidden">
+                {{ signature }}
+            </p>
         </div>
     </div>
 </template>
