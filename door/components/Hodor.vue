@@ -18,7 +18,7 @@ const tokenGroup = computed(() => token.value.trim().split('.'));
 const tokenValid = computed(() => tokenGroup.value.length == 3);
 const header = computed(() => tokenValid ? JSON.stringify(JSON.parse(base64URLDecode(tokenGroup.value[0])), null, 2) : null);
 const payload = computed(() => tokenValid ? JSON.stringify(JSON.parse(base64URLDecode(tokenGroup.value[1])), null, 2) : null);
-const signature = computed(() => tokenValid ? tokenGroup.value[2] : null);
+// const signature = computed(() => tokenValid ? tokenGroup.value[2] : null);
 
 let url_prefix = "";
 if (process.env.VERCEL) {
@@ -87,9 +87,6 @@ async function auth() {
             </p>
             <p class="text-xs break-all font-mono whitespace-pre">
                 {{ payload }}
-            </p>
-            <p class="text-xs font-mono text-ellipsis overflow-hidden">
-                {{ signature }}
             </p>
         </div>
     </div>
