@@ -94,6 +94,6 @@ export class Hodor implements Stableboy, Kid {
       requireUserVerification: false,
     });
 
-    return Meera(guest.baggage ?? null);
+    return Meera(this.name, guest.baggage);
   }
 }
