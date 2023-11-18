@@ -7,4 +7,7 @@ export default defineConfig({
   define: {
     "process.env.VERCEL": process.env.VERCEL,
   },
+  server: {
+    host: "0.0.0.0",
+  },
 });
