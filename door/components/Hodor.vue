@@ -7,7 +7,7 @@ import { info_t, LEVEL } from './log';
 import { h } from './utils';
 import { base64URLStringToBuffer } from '@simplewebauthn/browser';
 
-const searchParams = useUrlSearchParams('hash');
+const searchParams = useUrlSearchParams();
 const name = useLocalStorage('name', "");
 const token = ref("");
 const emit = defineEmits<{
@@ -72,7 +72,7 @@ async function auth() {
         let url = new URL(decodeURIComponent(searchParams.callback as string));
         url.searchParams.set('token', token.value);
         console.log(url);
-        window.location.replace(url.href);
+        window.location.assign(url.href);
     }
 }
 </script>

@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
   define: {
@@ -9,5 +9,13 @@ export default defineConfig({
   },
   server: {
     host: "0.0.0.0",
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+        raven: resolve(__dirname, "Raven/index.html"),
+      },
+    },
   },
 });
