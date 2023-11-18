@@ -7,10 +7,8 @@ export async function Meera(name?: string, baggage?: Baggage): Promise<Baggage> 
   }
 
   let token = baggage.token;
-  console.log(baggage);
   delete baggage.token;
   baggage.name = name;
-  console.log(baggage);
   switch (token) {
     case "asymmetry":
       baggage.token = jwt.sign(
@@ -19,6 +17,7 @@ export async function Meera(name?: string, baggage?: Baggage): Promise<Baggage> 
         {
           expiresIn: parseInt(process.env.JWT_EXPIRED_TIME ?? "0"),
           algorithm: "ES256",
+          noTimestamp: true,
         }
       );
       break;
