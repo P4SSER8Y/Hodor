@@ -3,9 +3,10 @@ import { Ref, ref } from 'vue';
 import Bran from './Bran.vue';
 import Hodor from './Hodor.vue';
 import { info_t, LEVEL } from './log';
-import { now, useTimeoutFn } from '@vueuse/core';
+import { now, useTimeoutFn, useUrlSearchParams } from '@vueuse/core';
 
-const who = [ref(true), ref(false)];
+const searchParams = useUrlSearchParams();
+const role = (searchParams.role as string)?.toLowerCase() == 'lord' ? Bran : Hodor;
 const msgShow = ref(false);
 const msg = ref("");
 const msgLevel = ref(LEVEL.INFO);
@@ -20,13 +21,6 @@ const MAP_INFO_LEVEL = new Map([
   [LEVEL.ERROR, "level-error"],
   [LEVEL.SUCCESS, "level-success"],
 ]);
-
-function activate(id: number) {
-  who.forEach(x => x.value = false);
-  who[id].value = true;
-  timer.stop();
-  msgShow.value = false;
-}
 
 function pushMessage(info: info_t) {
   timer.stop();
@@ -58,12 +52,8 @@ function updateProgress() {
 <template>
   <div class="card w-80 shadow-2xl card-bordered">
     <div class="card-body w-full">
-      <div v-if="who[0].value">
-        <Hodor @msg="pushMessage"></Hodor>
-      </div>
-      <div v-if="who[1].value">
-        <Bran @msg="pushMessage"></Bran>
-      </div>
+      <component :is="role" @msg="pushMessage">
+      </component>
       <Transition name="popup">
         <div v-show="msgShow" class="w-full">
           <progress class="progress" :max="stopTime - startTime" :value="progress"></progress>
@@ -72,14 +62,6 @@ function updateProgress() {
           </div>
         </div>
       </Transition>
-    </div>
-    <div class="btm-nav btm-nav-lg">
-      <button :class="who[0].value ? 'is-active' : 'is-inactive'" @click="activate(0)">
-        HODOR
-      </button>
-      <button :class="who[1].value ? 'is-active' : 'is-inactive'" @click="activate(1)">
-        BRAN
-      </button>
     </div>
   </div>
 </template>
