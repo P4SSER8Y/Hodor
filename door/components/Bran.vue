@@ -19,6 +19,11 @@ if (process.env.VERCEL) {
 }
 
 async function register() {
+    if (name.value.length == 0)
+    {
+        emit("msg", { level: LEVEL.WARNING, msg: "who are you?", timeout: 3000 });
+        return;
+    }
     let url = `${url_prefix}name=${name.value}`;
     emit("msg", { level: LEVEL.INFO, msg: "fetch challenge", timeout: -1 });
     const resp = await h(fetch(url));

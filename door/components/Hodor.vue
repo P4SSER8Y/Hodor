@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { startAuthentication } from '@simplewebauthn/browser';
 import { useLocalStorage } from '@vueuse/core'
 import { useUrlSearchParams } from '@vueuse/core';
@@ -30,6 +30,11 @@ function base64URLDecode(base64URLString: string) {
 }
 
 async function auth() {
+    if (name.value.length == 0)
+    {
+        emit("msg", { level: LEVEL.WARNING, msg: "who are you?", timeout: 3000 });
+        return;
+    }
     let url = `${url_prefix}name=${name.value}`;
     emit("msg", { level: LEVEL.INFO, msg: 'fetch challenge', timeout: -1 });
     const resp = await h(fetch(url));
@@ -68,13 +73,20 @@ async function auth() {
     token.value = result.v.baggage?.token ?? "";
     emit("msg", { level: LEVEL.SUCCESS, msg: `get token`, timeout: 5000 });
 
-    if (searchParams.callback?.length > 0) {
-        let url = new URL(decodeURIComponent(searchParams.callback as string));
+    if (searchParams.c?.length > 0) {
+        let url = new URL(decodeURIComponent(searchParams.c as string));
         url.searchParams.set('token', token.value);
         console.log(url);
         window.location.assign(url.href);
     }
 }
+
+onMounted(async () => {
+    if (searchParams.t)
+    {
+        await auth();
+    }
+})
 </script>
 
 <template>
