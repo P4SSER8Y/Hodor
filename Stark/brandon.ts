@@ -28,12 +28,14 @@ export class Brandon implements Lord, Secretary {
   readonly rpID: string;
   readonly origin: string;
   readonly name: string;
+  readonly family: string;
 
-  constructor(rpName: string, rpID: string, origin: string, name: string) {
+  constructor(rpName: string, rpID: string, origin: string, name: string, family: string) {
     this.rpName = rpName;
     this.rpID = rpID;
     this.origin = origin;
     this.name = name;
+    this.family = family;
   }
 
   async is_waiting(): Promise<boolean> {
@@ -101,10 +103,11 @@ export class Brandon implements Lord, Secretary {
 
     await this.register(
       {
-        user: this.name,
+        name: this.name,
         id: credentialID,
         publicKey: publickey,
         origin: this.origin,
+        family: this.family,
       },
       present.baggage ?? null
     );

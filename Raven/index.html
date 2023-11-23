@@ -20,7 +20,8 @@
         var gate = url.searchParams.get("gate");
         if (gate) {
           var dest = new URL(gate);
-          dest.searchParams.set("callback", url.href);
+          dest.searchParams.set("c", url.href);
+          dest.searchParams.set("f", url.searchParams.get("family"));
           window.location.assign(dest.href);
         } else {
           p.innerText = "gate not defined";

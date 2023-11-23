@@ -26,12 +26,14 @@ export class Hodor implements Stableboy, Kid {
   readonly rpID: string;
   readonly origin: string;
   readonly name: string;
+  readonly family: string;
 
-  constructor(rpName: string, rpID: string, origin: string, name: string) {
+  constructor(rpName: string, rpID: string, origin: string, name: string, family: string) {
     this.rpName = rpName;
     this.rpID = rpID;
     this.origin = origin;
     this.name = name;
+    this.family = family;
   }
 
   have_meet(): Promise<string[]> {
@@ -94,6 +96,6 @@ export class Hodor implements Stableboy, Kid {
       requireUserVerification: false,
     });
 
-    return Meera(this.name, guest.baggage);
+    return Meera(this.name, guest.baggage, guest.token);
   }
 }

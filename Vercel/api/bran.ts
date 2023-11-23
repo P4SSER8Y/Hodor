@@ -5,14 +5,14 @@ import { kv } from "@vercel/kv";
 import { sql } from "@vercel/postgres";
 
 class LordBrandon extends Brandon {
-  constructor(rpName: string, rpID: string, origin: string, name: string) {
-    super(rpName, rpID, origin, name);
+  constructor(rpName: string, rpID: string, origin: string, name: string, family: string) {
+    super(rpName, rpID, origin, name, family);
   }
 
   async is_waiting(): Promise<boolean> {
     let valid = await kv.get(`gate/waiting/${this.name}`);
     if (!valid) {
-      console.log(`invali user=${this.name}`);
+      console.log(`invalid user=${this.name}`);
       return false;
     }
     return true;
@@ -32,23 +32,24 @@ class LordBrandon extends Brandon {
   }
 
   async register(record: GuestRecord, baggage: Baggage): Promise<void> {
-    await sql`INSERT INTO gate(username, id, publickey, origin, enabled)
-            VALUES(${record.user},
+    await sql`INSERT INTO gate_id(name, family, id, publickey, origin, enabled)
+            VALUES(${record.name},
+                   ${record.family},
                    ${record.id},
                    ${record.publicKey},
                    ${record.origin},
                    TRUE)`;
     if (baggage) {
       await sql.query(
-        `INSERT INTO stable(username, baggage, origin) VALUES($1, $2, $3)`,
-        [record.user, baggage, this.origin]
+        `INSERT INTO gate_stable(name, baggage, family) VALUES($1, $2, $3)`,
+        [record.name, baggage, this.family]
       );
     }
   }
 
   async get_previous_id(): Promise<string[]> {
     let query =
-      await sql.query(`SELECT id FROM gate WHERE username=$1 AND origin=$2`, [this.name, this.origin]);
+      await sql.query(`SELECT id FROM gate_id WHERE name=$1 AND origin=$2 AND family=$3`, [this.name, this.origin, this.family]);
     return query.rows.map((x) => x.id as string);
   }
 }
@@ -58,25 +59,26 @@ export default async function bran(
   response: VercelResponse
 ) {
   try {
-    if (!request.query.name) {
+    if (typeof request.query.name !== 'string' || request.query.name.length == 0) {
       console.log("empty name");
       response.status(404).send(null);
       return;
     }
-    if (typeof request.query.origin !== 'string')
+    if (typeof request.query.family !== 'string' || request.query.family.length == 0)
     {
-      console.log("empty origin");
+      console.log("empty family");
       response.status(404).send(null);
       return;
     }
     let url = new URL(request.headers.referer ?? request.headers.origin ?? "");
     let rpID = url.hostname;
-    let origin = request.query.origin;
+    let origin = url.origin;
     let bran = new LordBrandon(
       process.env.RP_NAME!,
       rpID,
       origin,
-      request.query.name as string
+      request.query.name,
+      request.query.family,
     );
     let answer: any;
     switch (request.method) {

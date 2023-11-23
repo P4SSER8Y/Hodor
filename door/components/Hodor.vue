@@ -6,9 +6,10 @@ import { useUrlSearchParams } from '@vueuse/core';
 import { info_t, LEVEL } from './log';
 import { h } from './utils';
 import { base64URLStringToBuffer } from '@simplewebauthn/browser';
+import { Package } from '../../Stark/book'
 
 const searchParams = useUrlSearchParams();
-const props = defineProps<{ name?: string, origin: string }>();
+const props = defineProps<{ name?: string, family: string }>();
 const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage('name', '');
 const token = ref("");
 const emit = defineEmits<{
@@ -35,7 +36,7 @@ async function auth() {
         emit("msg", { level: LEVEL.WARNING, msg: "who are you?", timeout: 3000 });
         return;
     }
-    let url = `${url_prefix}name=${name.value}&origin=${props.origin}`;
+    let url = `${url_prefix}name=${name.value}&family=${props.family}`;
     emit("msg", { level: LEVEL.INFO, msg: 'fetch challenge', timeout: -1 });
     const resp = await h(fetch(url));
     if (resp.err || !resp.v?.ok) {
@@ -70,12 +71,16 @@ async function auth() {
         emit("msg", { level: LEVEL.ERROR, msg: `verification failed: ${result.err.message}`, timeout: 3000 });
         return;
     }
-    token.value = result.v.baggage?.token ?? "";
+    const pack = result.v as Package;
+    token.value = pack.token ?? "";
     emit("msg", { level: LEVEL.SUCCESS, msg: `get token`, timeout: 5000 });
 
     if (searchParams.c?.length > 0) {
         let url = new URL(decodeURIComponent(searchParams.c as string));
         url.searchParams.set('token', token.value);
+        if (pack.baggage) {
+            url.searchParams.set('baggage', JSON.stringify(pack.baggage));
+        }
         console.log(url);
         window.location.assign(url.href);
     }
