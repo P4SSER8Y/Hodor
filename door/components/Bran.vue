@@ -6,7 +6,8 @@ import { ref } from 'vue';
 import { LEVEL, info_t } from './log';
 import { Err, h } from './utils';
 
-const name = useLocalStorage('name', "");
+const props = defineProps<{name?: string}>();
+const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage('name', '');
 const baggage = ref("{ \"token\": \"asymmetry\" }");
 const emit = defineEmits<{
     (event: 'msg', msg: info_t): void

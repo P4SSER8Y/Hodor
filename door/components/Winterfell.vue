@@ -7,6 +7,7 @@ import { now, useTimeoutFn, useUrlSearchParams } from '@vueuse/core';
 
 const searchParams = useUrlSearchParams();
 const role = (searchParams.role as string)?.toLowerCase() == 'lord' ? Bran : Hodor;
+const name = searchParams.n as (string | undefined);
 const msgShow = ref(false);
 const msg = ref("");
 const msgLevel = ref(LEVEL.INFO);
@@ -52,7 +53,7 @@ function updateProgress() {
 <template>
   <div class="card w-80 shadow-2xl card-bordered">
     <div class="card-body w-full">
-      <component :is="role" @msg="pushMessage">
+      <component :is="role" @msg="pushMessage" :name="name">
       </component>
       <Transition name="popup">
         <div v-show="msgShow" class="w-full">

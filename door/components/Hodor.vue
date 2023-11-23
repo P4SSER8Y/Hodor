@@ -8,7 +8,8 @@ import { h } from './utils';
 import { base64URLStringToBuffer } from '@simplewebauthn/browser';
 
 const searchParams = useUrlSearchParams();
-const name = useLocalStorage('name', "");
+const props = defineProps<{name?: string}>();
+const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage('name', '');
 const token = ref("");
 const emit = defineEmits<{
     (event: 'msg', msg: info_t): void
