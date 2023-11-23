@@ -8,7 +8,7 @@ import { h } from './utils';
 import { base64URLStringToBuffer } from '@simplewebauthn/browser';
 
 const searchParams = useUrlSearchParams();
-const props = defineProps<{name?: string}>();
+const props = defineProps<{ name?: string, origin: string }>();
 const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage('name', '');
 const token = ref("");
 const emit = defineEmits<{
@@ -31,12 +31,11 @@ function base64URLDecode(base64URLString: string) {
 }
 
 async function auth() {
-    if (name.value.length == 0)
-    {
+    if (name.value.length == 0) {
         emit("msg", { level: LEVEL.WARNING, msg: "who are you?", timeout: 3000 });
         return;
     }
-    let url = `${url_prefix}name=${name.value}`;
+    let url = `${url_prefix}name=${name.value}&origin=${props.origin}`;
     emit("msg", { level: LEVEL.INFO, msg: 'fetch challenge', timeout: -1 });
     const resp = await h(fetch(url));
     if (resp.err || !resp.v?.ok) {
@@ -83,8 +82,7 @@ async function auth() {
 }
 
 onMounted(async () => {
-    if (searchParams.t)
-    {
+    if (searchParams.t) {
         await auth();
     }
 })

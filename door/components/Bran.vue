@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import { LEVEL, info_t } from './log';
 import { Err, h } from './utils';
 
-const props = defineProps<{name?: string}>();
+const props = defineProps<{ name?: string, origin: string }>();
 const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage('name', '');
 const baggage = ref("{ \"token\": \"asymmetry\" }");
 const emit = defineEmits<{
@@ -20,12 +20,11 @@ if (process.env.VERCEL) {
 }
 
 async function register() {
-    if (name.value.length == 0)
-    {
+    if (name.value.length == 0) {
         emit("msg", { level: LEVEL.WARNING, msg: "who are you?", timeout: 3000 });
         return;
     }
-    let url = `${url_prefix}name=${name.value}`;
+    let url = `${url_prefix}name=${name.value}&origin=${props.origin}`;
     emit("msg", { level: LEVEL.INFO, msg: "fetch challenge", timeout: -1 });
     const resp = await h(fetch(url));
     if (resp.err || !resp.v?.ok) {

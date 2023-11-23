@@ -63,9 +63,15 @@ export default async function (
       response.status(404).send(null);
       return;
     }
+    if (typeof request.query.origin !== 'string')
+    {
+      console.log("empty origin");
+      response.status(404).send(null);
+      return;
+    }
     let url = new URL(request.headers.referer ?? request.headers.origin ?? "");
     let rpID = url.hostname;
-    let origin = url.origin;
+    let origin = request.query.origin;
     let hodor = new HoldTheDoor(
       process.env.RP_NAME!,
       rpID,
