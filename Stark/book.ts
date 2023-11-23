@@ -15,4 +15,9 @@ export type TokenStruct =
   | { type: "symmetry"; key: string; exp: number }
   | { type: "session" };
 
-export type Package = { name: string; baggage?: object; token?: string };
+export type Package = {
+  name: string;
+  family: string;
+  baggage?: object;
+  token?: string;
+};
