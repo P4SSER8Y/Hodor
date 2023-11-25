@@ -10,7 +10,7 @@ import { Package } from '../../Stark/book'
 
 const searchParams = useUrlSearchParams();
 const props = defineProps<{ name?: string, family: string }>();
-const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage('name', '');
+const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage(props.family, '');
 const token = ref("");
 const emit = defineEmits<{
     (event: 'msg', msg: info_t): void

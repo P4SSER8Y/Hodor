@@ -7,7 +7,7 @@ import { LEVEL, info_t } from './log';
 import { Err, h } from './utils';
 
 const props = defineProps<{ name?: string, family: string }>();
-const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage('name', '');
+const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage(props.family, '');
 const baggage = ref("");
 const emit = defineEmits<{
     (event: 'msg', msg: info_t): void
