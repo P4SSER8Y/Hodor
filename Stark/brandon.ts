@@ -11,12 +11,12 @@ type GreetingPresent = any & {
 type Words = string;
 interface Lord {
   name: string;
-  visit(): Promise<Invitation | null>;
+  visit(code: string): Promise<Invitation | null>;
   greet(present: GreetingPresent): Promise<Words | null>;
 }
 
 interface Secretary {
-  is_waiting(): Promise<boolean>;
+  is_waiting(code: string): Promise<boolean>;
   book(challenge: Words): Promise<void>;
   check(): Promise<Words>;
   register(record: GuestRecord, baggage: Baggage): Promise<void>;
@@ -38,7 +38,7 @@ export class Brandon implements Lord, Secretary {
     this.family = family;
   }
 
-  async is_waiting(): Promise<boolean> {
+  async is_waiting(code: string): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
   async book(challenge: string): Promise<void> {
@@ -54,8 +54,8 @@ export class Brandon implements Lord, Secretary {
     throw new Error("Method not implemented.");
   }
 
-  async visit(): Promise<Invitation | null> {
-    if (!(await this.is_waiting())) {
+  async visit(code: string): Promise<Invitation | null> {
+    if (!(await this.is_waiting(code))) {
       console.log(`invalid user=${this.name}`);
       return null;
     }

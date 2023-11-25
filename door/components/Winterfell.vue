@@ -3,12 +3,13 @@ import { Ref, ref } from 'vue';
 import Bran from './Bran.vue';
 import Hodor from './Hodor.vue';
 import { info_t, LEVEL } from './log';
-import { now, useTimeoutFn, useUrlSearchParams } from '@vueuse/core';
+import { now, useTimeoutFn, useTitle, useUrlSearchParams } from '@vueuse/core';
 
 const searchParams = useUrlSearchParams();
-const role = (searchParams.role as string)?.toLowerCase() == 'lord' ? Bran : Hodor;
+const role = (searchParams.r as string)?.toLowerCase() == 'lord' ? Bran : Hodor;
 const name = searchParams.n as (string | undefined);
 const family = (typeof searchParams.f === 'string' && searchParams.f.length > 0) ? searchParams.f : 'Stark';
+useTitle().value = `Hodor - ${family}`;
 const msgShow = ref(false);
 const msg = ref("");
 const msgLevel = ref(LEVEL.INFO);
@@ -49,11 +50,22 @@ function updateProgress() {
   timer.start();
 }
 
+function recall() {
+  let url = new URL(window.location.href);
+  if (url.searchParams.has('r')) {
+    url.searchParams.delete('r');
+  }
+  else {
+    url.searchParams.set('r', 'lord');
+  }
+  window.location.replace(url.href);
+}
+
 </script>
 
 <template>
   <div class="card w-80 shadow-2xl card-bordered">
-    <div class="card-body w-full">
+    <div class="card-body w-full" @click.ctrl="recall">
       <component :is="role" @msg="pushMessage" :name="name" :family="family">
       </component>
       <Transition name="popup">

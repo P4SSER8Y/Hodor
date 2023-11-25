@@ -9,9 +9,9 @@ class LordBrandon extends Brandon {
     super(rpName, rpID, origin, name, family);
   }
 
-  async is_waiting(): Promise<boolean> {
-    let valid = await kv.get(`gate/waiting/${this.name}`);
-    if (!valid) {
+  async is_waiting(code: string): Promise<boolean> {
+    let query = await sql`SELECT (code = crypt(${code}, code)) AS m FROM gate_body WHERE name = ${this.name}`;
+    if ((query.rowCount != 1) || (!query.rows[0].m)) {
       console.log(`invalid user=${this.name}`);
       return false;
     }
@@ -64,8 +64,7 @@ export default async function bran(
       response.status(404).send(null);
       return;
     }
-    if (typeof request.query.family !== 'string' || request.query.family.length == 0)
-    {
+    if (typeof request.query.family !== 'string' || request.query.family.length == 0) {
       console.log("empty family");
       response.status(404).send(null);
       return;
@@ -82,12 +81,13 @@ export default async function bran(
     );
     let answer: any;
     switch (request.method) {
-      case "GET":
-        answer = await bran.visit();
-        response.status(200).json(answer);
-        break;
       case "POST":
-        answer = await bran.greet(request.body);
+        if ('code' in request.body) {
+          answer = await bran.visit(request.body.code);
+        }
+        else {
+          answer = await bran.greet(request.body);
+        }
         response.status(200).send(answer);
         break;
       default:
