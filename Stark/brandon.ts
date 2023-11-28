@@ -56,8 +56,7 @@ export class Brandon implements Lord, Secretary {
 
   async visit(code: string): Promise<Invitation | null> {
     if (!(await this.is_waiting(code))) {
-      console.log(`invalid user=${this.name}`);
-      return null;
+      throw Error(`invalid user=${this.name}`);
     }
     const id = await this.get_previous_id();
     const options = await generateRegistrationOptions({

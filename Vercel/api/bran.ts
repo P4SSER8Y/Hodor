@@ -14,8 +14,7 @@ class LordBrandon extends Brandon {
   async is_waiting(code: string): Promise<boolean> {
     let query = await sql`SELECT (code = crypt(${code}, code)) AS m FROM gate_body WHERE name = ${this.name}`;
     if ((query.rowCount != 1) || (!query.rows[0].m)) {
-      console.log(`invalid user=${this.name}`);
-      return false;
+      throw Error(`invalid name=${this.name}`);
     }
     return true;
   }
