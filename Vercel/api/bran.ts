@@ -4,6 +4,8 @@ import { Brandon } from "../../Stark/brandon.js";
 import { kv } from "@vercel/kv";
 import { sql } from "@vercel/postgres";
 
+const FAILED_COUNT_KEY = 'gate/failed_count';
+
 class LordBrandon extends Brandon {
   constructor(rpName: string, rpID: string, origin: string, name: string, family: string) {
     super(rpName, rpID, origin, name, family);
@@ -59,15 +61,14 @@ export default async function bran(
   response: VercelResponse
 ) {
   try {
+    if ((await kv.get<number>(FAILED_COUNT_KEY) ?? 0)  >= 5) {
+      throw Error('blocking');
+    }
     if (typeof request.query.name !== 'string' || request.query.name.length == 0) {
-      console.log("empty name");
-      response.status(404).send(null);
-      return;
+      throw Error("empty name");
     }
     if (typeof request.query.family !== 'string' || request.query.family.length == 0) {
-      console.log("empty family");
-      response.status(404).send(null);
-      return;
+      throw Error("empty family");
     }
     let url = new URL(request.headers.referer ?? request.headers.origin ?? "");
     let rpID = url.hostname;
@@ -96,6 +97,8 @@ export default async function bran(
     }
   } catch (error) {
     console.log(`error: ${error}`);
+    await kv.incr(FAILED_COUNT_KEY);
+    await kv.expire(FAILED_COUNT_KEY, 60 * 5);
     response.status(404).send(null);
   }
 }
