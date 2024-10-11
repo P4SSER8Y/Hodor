@@ -11,7 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "@simplewebauthn/browser": "^8.3.4",
-    "@simplewebauthn/server": "^8.3.5",
+    "@simplewebauthn/server": "^10.0.0",
     "@types/node": "^20.9.0",
     "@vercel/kv": "^1.0.0",
     "@vercel/node": "^3.0.9",
