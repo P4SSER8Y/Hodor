@@ -96,7 +96,7 @@ onMounted(async () => {
 
 <template>
     <div class="grid grid-cols-1 my-2 gap-1">
-        <input class="input input-bordered input-info input-lg center" placeholder="name" v-model="name" />
+        <input class="input input-bordered input-info input-lg text-center" placeholder="name" v-model="name" />
         <button class="btn btn-secondary btn-sm" @click="auth"></button>
         <div v-if="DEV" class="textarea textarea-bordered textarea-xs">
             <p class="text-xs break-all font-mono whitespace-pre">
