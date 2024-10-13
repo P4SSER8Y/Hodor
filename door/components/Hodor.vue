@@ -18,8 +18,9 @@ const emit = defineEmits<{
 
 const tokenGroup = computed(() => token.value.trim().split('.'));
 const tokenValid = computed(() => tokenGroup.value.length == 3);
+const DEV = import.meta.env.DEV;
 const header = computed(() => tokenValid ? JSON.stringify(JSON.parse(base64URLDecode(tokenGroup.value[0])), null, 2) : null);
-// const payload = computed(() => tokenValid ? JSON.stringify(JSON.parse(base64URLDecode(tokenGroup.value[1])), null, 2) : null);
+const payload = computed(() => tokenValid ? JSON.stringify(JSON.parse(base64URLDecode(tokenGroup.value[1])), null, 2) : null);
 // const signature = computed(() => tokenValid ? tokenGroup.value[2] : null);
 
 let url_prefix = "";
@@ -95,15 +96,15 @@ onMounted(async () => {
 
 <template>
     <div class="grid grid-cols-1 my-2 gap-1">
-        <input class="input input-bordered input-info input-lg" placeholder="name" v-model="name" />
+        <input class="input input-bordered input-info input-lg center" placeholder="name" v-model="name" />
         <button class="btn btn-secondary btn-sm" @click="auth"></button>
-        <div v-if="tokenValid" class="textarea textarea-bordered textarea-xs">
+        <div v-if="DEV" class="textarea textarea-bordered textarea-xs">
             <p class="text-xs break-all font-mono whitespace-pre">
                 {{ header }}
             </p>
-            <!-- <p class="text-xs break-all font-mono whitespace-pre">
+            <p class="text-xs break-all font-mono whitespace-pre">
                 {{ payload }}
-            </p> -->
+            </p>
         </div>
     </div>
 </template>
