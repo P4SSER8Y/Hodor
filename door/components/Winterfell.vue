@@ -68,16 +68,16 @@ function recall() {
     <div class="card-body w-full" @click.ctrl="recall">
       <component :is="role" @msg="pushMessage" :name="name" :family="family">
       </component>
-      <Transition name="popup">
-        <div v-show="msgShow" class="w-full">
-          <progress class="progress" :max="stopTime - startTime" :value="progress"></progress>
-          <div :class="'hyphens-auto alert ' + MAP_INFO_LEVEL.get(msgLevel)">
-            {{ msg }}
-          </div>
-        </div>
-      </Transition>
     </div>
   </div>
+  <Transition name="popup">
+    <div v-show="msgShow" class="fixed bottom-4 left-0 right-0 px-4 z-50 w-full">
+      <progress class="progress" :max="stopTime - startTime" :value="progress"></progress>
+      <div :class="'hyphens-auto alert ' + MAP_INFO_LEVEL.get(msgLevel)">
+        {{ msg }}
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <style scoped lang="postcss">
