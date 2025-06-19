@@ -71,7 +71,7 @@ function recall() {
     </div>
   </div>
   <Transition name="popup">
-    <div v-show="msgShow" class="fixed bottom-8 left-0 right-0 px-4 z-50 w-80 shadow-2xl">
+    <div v-show="msgShow" class="fixed bottom-8 left-0 right-0 px-4 z-50 w-80 shadow-2xl mx-auto">
       <progress class="progress" :max="stopTime - startTime" :value="progress"></progress>
       <div :class="'hyphens-auto alert ' + MAP_INFO_LEVEL.get(msgLevel)">
         {{ msg }}
