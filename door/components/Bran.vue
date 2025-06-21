@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import { LEVEL, info_t } from './log';
 import { Err, h } from './utils';
 
-const props = defineProps<{ name?: string, family: string }>();
+const props = defineProps<{ name?: string, family: string, expire?: any }>();
 const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage(props.family, '');
 const code = ref("");
 const baggage = ref("");

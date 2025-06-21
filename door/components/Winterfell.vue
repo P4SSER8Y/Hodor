@@ -10,6 +10,7 @@ const role = (searchParams.r as string)?.toLowerCase() == 'lord' ? Bran : Hodor;
 const name = searchParams.n as (string | undefined);
 const family = (typeof searchParams.f === 'string' && searchParams.f.length > 0) ? searchParams.f : 'Stark';
 useTitle().value = `Hodor - ${family}`;
+const expire = (typeof searchParams.e === 'string') && parseInt(searchParams.e);
 const msgShow = ref(false);
 const msg = ref("");
 const msgLevel = ref(LEVEL.INFO);
@@ -66,7 +67,7 @@ function recall() {
 <template>
   <div class="card w-80 shadow-2xl card-bordered">
     <div class="card-body w-full" @click.ctrl="recall">
-      <component :is="role" @msg="pushMessage" :name="name" :family="family">
+      <component :is="role" @msg="pushMessage" :name="name" :family="family" :expire="expire">
       </component>
     </div>
   </div>

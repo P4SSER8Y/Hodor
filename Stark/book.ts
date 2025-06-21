@@ -18,6 +18,7 @@ export type TokenStruct =
 export type Package = {
   name: string;
   family: string;
+  expire?: number;
   baggage?: object;
   token?: string;
 };

@@ -9,7 +9,7 @@ import { base64URLStringToBuffer } from '@simplewebauthn/browser';
 import { Package } from '../../Stark/book'
 
 const searchParams = useUrlSearchParams();
-const props = defineProps<{ name?: string, family: string }>();
+const props = defineProps<{ name?: string, family: string, expire?: number }>();
 const name = (props.name && props.name.length > 0) ? ref(props.name) : useLocalStorage(props.family, '');
 const token = ref("");
 const emit = defineEmits<{
@@ -56,6 +56,9 @@ async function auth() {
         return;
     }
     emit("msg", { level: LEVEL.INFO, msg: 'wait for verify', timeout: -1 });
+    if (props.expire) {
+        (asseResp.v as any).expire = props.expire;
+    }
     const verificationResp = await h(fetch(url, {
         method: "POST",
         headers: {

@@ -6,7 +6,7 @@ import { GuestRecord, Baggage } from "./book.js";
 import { Meera } from "./meera.js";
 
 type Answer = object;
-type Paper = object & { id: string };
+type Paper = object & { id: string, expire?: number };
 export type Words = string;
 
 interface Stableboy {
@@ -101,7 +101,18 @@ export class Hodor implements Stableboy, Kid {
       },
       requireUserVerification: false,
     });
-
+    
+    if (paper.expire && guest.token) {
+      switch (guest.token.type) {
+        case "asymmetry":
+        case "symmetry":
+          if (paper.expire < guest.token.exp) {
+            guest.token.exp = paper.expire;
+          }
+          break;
+      }
+    }
+    
     return Meera(this.name, this.family, guest.baggage, guest.token);
   }
 }
