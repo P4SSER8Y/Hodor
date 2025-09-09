@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "engines": {
-    "node": "=18"
+    "node": "=22"
   },
   "author": "P4SSER8Y",
   "license": "MIT",
